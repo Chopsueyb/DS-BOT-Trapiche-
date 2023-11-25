@@ -9,7 +9,8 @@
 
 const play = require("play-dl"); //
 
-let autoplay_op, skip_op = false;
+let autoplay_op =false;
+let skip_op = false;
 let queue = [];
 let stream , resource;
 const { createAudioPlayer, createAudioResource , StreamType, demuxProbe, joinVoiceChannel, NoSubscriberBehavior,
@@ -129,9 +130,17 @@ client.on('messageCreate', async(message) => { // Accede al evento de mensajes c
             if(player.state.status === 'idle' ||   skip_op == true){  // Reproduccion de audio/ skip 
 
                 skip_op = false;
+                
 
-                 stream = await play.stream(queue[0])
-     
+                if(!queue.length){
+                
+                queue.push(vid_data.related_videos[1])
+                vid_data = await play.video_basic_info(vid_data.related_videos[1])
+                } 
+
+                stream = await play.stream(queue[0])
+
+
                 queue.shift()
      
                 message.channel.send('PLAYING:  '+ vid_data.video_details.title)
@@ -147,8 +156,11 @@ client.on('messageCreate', async(message) => { // Accede al evento de mensajes c
 
 
             if(player.state.status == 'idle' && autoplay_op == true && !queue.length){ // Auto Play
-        
-           stream = await play.stream(vid_data.related_videos[0])
+
+            vid_data = await play.video_basic_info(vid_data.related_videos[1])
+            message.channel.send('PLAYING:  '+ vid_data.video_details.title)
+
+           stream = await play.stream(vid_data.related_videos[1])
  
             resource = await createAudioResource(stream.stream, {
                  inputType: stream.type
